@@ -12,7 +12,7 @@ class Client {
 	const API_BASE = "https://connect.rjmetrics.com/v2";
 	const SANDBOX_BASE = "https://sandbox-connect.rjmetrics.com/v2";
 
-	private $clientId, $apiKey;
+	private $clientId, $apiKey, $timeoutInSeconds;
 
 	/**
 	 * Client::__construct
@@ -25,12 +25,17 @@ class Client {
 	 *
 	 * @param int $clientId
 	 * @param string $apiKey
+	 * @param :optional int $timeoutInSeconds
 	 * @return object
 	 */
-	public function __construct($clientId, $apiKey) {
+	public function __construct($clientId, $apiKey, $timeoutInSeconds = 10) {
 		if(!is_int($clientId) || $clientId <= 0)
 			throw new \InvalidArgumentException(
 				"Invalid client ID: {$clientId} -- must be a positive integer.");
+
+		if(!is_int($timeoutInSeconds) || $timeoutInSeconds <= 0)
+			throw new \InvalidArgumentException(
+				"Invalid timeout: {$timeoutInSeconds} seconds -- must be a positive integer.");
 
 		if(!is_string($apiKey))
 			throw new \InvalidArgumentException(
@@ -38,6 +43,7 @@ class Client {
 
 		$this->clientId = $clientId;
 		$this->apiKey = $apiKey;
+		$this->timeoutInSeconds = $timeoutInSeconds;
 
 		if(!$this->authenticate())
 			throw new UnableToConnectException("Connection failed. Please double check your credentials.");
@@ -115,6 +121,7 @@ class Client {
 		$response = \Httpful\Request::post($requestUrl)
 			->mime("application/json")
 			->body($data)
+			->timeout($this->timeoutInSeconds)
 			->send();
 
 		if($response->hasErrors())
