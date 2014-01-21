@@ -1,0 +1,14 @@
+{
+    "name": "rjmetrics/rjmetrics",
+    "description": "PHP Client Library for RJMetrics",
+    "license": "Apache v2",
+    "authors": [
+        {
+            "name": "Connor McArthur",
+            "email": "cmcarthur@rjmetrics.com"
+        }
+    ],
+    "require": {
+
+    }
+}
