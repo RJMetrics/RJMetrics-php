@@ -33,7 +33,13 @@ class Client {
 	public function test() {
 		$testData = json_decode("[{\"keys\":[\"id\"],\"id\":1}]");
 
-		return $this->isSuccess($this->pushData("test", $testData, self::SANDBOX_BASE));
+		try {
+			$this->pushData("test", $testData, self::SANDBOX_BASE);
+		} catch(InvalidRequestException $e) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public function pushData($table, $data, $url = self::API_BASE) {
@@ -53,12 +59,6 @@ class Client {
 		}, array_chunk($data, 100));
 
 		return $responses;
-	}
-
-	private function isSuccess(array $responses) {
-		return count(array_filter($responses, function($response) {
-			return $response->code >= 400;
-		})) == 0;
 	}
 
 	private function makePushDataAPICall($table, array $data, $url = self::API_BASE) {
