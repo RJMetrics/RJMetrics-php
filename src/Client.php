@@ -5,6 +5,7 @@ namespace RJMetrics;
 use Httpful;
 
 class UnableToConnectException extends \Exception {}
+class InvalidRequestException extends \Exception {}
 
 class Client {
 
@@ -47,9 +48,11 @@ class Client {
 		if(!is_array($data))
 			$data = [$data];
 
-		return array_map(function($subArray) use ($table, $url) {
+		$responses = array_map(function($subArray) use ($table, $url) {
 			return $this->makePushDataAPICall($table, $subArray, $url);
 		}, array_chunk($data, 100));
+
+		return $responses;
 	}
 
 	private function isSuccess(array $responses) {
@@ -59,12 +62,17 @@ class Client {
 	}
 
 	private function makePushDataAPICall($table, array $data, $url = self::API_BASE) {
-		$requestUrl = "{$url}/client/{$this->clientId}/table/test/data?apikey={$this->apiKey}";
+		$requestUrl = "{$url}/client/{$this->clientId}/table/$table/data?apikey={$this->apiKey}";
 
 		$response = \Httpful\Request::post($requestUrl)
 			->mime("application/json")
 			->body($data)
 			->send();
+
+		if($response->hasErrors())
+			throw new InvalidRequestException(
+				"The Import API returned: {$response->code} {$response->body->message}. ".
+				"Reasons: ".implode($response->body->reasons, ","));
 
 		return $response;
 	}
