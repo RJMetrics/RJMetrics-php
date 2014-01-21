@@ -14,6 +14,19 @@ class Client {
 
 	private $clientId, $apiKey;
 
+	/**
+	 * Client::__construct
+	 *
+	 * Takes a `clientId` and `apiKey`. If either are invalid, this function will
+	 * immediately throw an `InvalidArgumentException`. It will then hit the live API to test the
+	 * given credentials. If that authentication fails, it will throw a `RJMetrics\UnableToConnectException`.
+	 *
+	 * Returns itself to enable chaining.
+	 *
+	 * @param int $clientId
+	 * @param string $apiKey
+	 * @return object
+	 */
 	public function __construct($clientId, $apiKey) {
 		if(!is_int($clientId) || $clientId <= 0)
 			throw new \InvalidArgumentException(
@@ -26,11 +39,21 @@ class Client {
 		$this->clientId = $clientId;
 		$this->apiKey = $apiKey;
 
-		if(!$this->test())
+		if(!$this->authenticate())
 			throw new UnableToConnectException("Connection failed. Please double check your credentials.");
+
+		return $this;
 	}
 
-	public function test() {
+	/**
+	 * Client::test
+	 *
+	 * This function will run authentication against the live API. Will return true if authentication
+	 * succeeds, false if it fails.
+	 *
+	 * @return boolean
+	 */
+	public function authenticate() {
 		$testData = json_decode("[{\"keys\":[\"id\"],\"id\":1}]");
 
 		try {
@@ -42,27 +65,52 @@ class Client {
 		return true;
 	}
 
-	public function pushData($table, $data, $url = self::API_BASE) {
+	/**
+	 * Client::pushData
+	 *
+	 * Given a table name and a valid php object or array, this function will push it to the Import
+	 * API. If `tableName` or `data` are invalid, this function will throw an `InvalidArgumentException`.
+	 *
+	 * Per the Import API spec, it breaks `data` down into chunks of 100 records per request.
+	 *
+	 * Returns an array of Httpful response objects.
+	 *
+	 * @param string $table
+	 * @param array/object $data
+	 * @param :optional string $url
+	 * @return array
+	 */
+	public function pushData($tableName, $data, $url = self::API_BASE) {
 		if(!is_object($data) && !is_array($data))
 			throw new \InvalidArgumentException(
 				"Invalid data -- must be a valid PHP array or object.");
 
-		if(!is_string($table))
+		if(!is_string($tableName))
 			throw new \InvalidArgumentException(
 				"Invalid table name: '{$table}' -- must be a string.");
 
 		if(!is_array($data))
 			$data = [$data];
 
-		$responses = array_map(function($subArray) use ($table, $url) {
-			return $this->makePushDataAPICall($table, $subArray, $url);
+		$responses = array_map(function($subArray) use ($tableName, $url) {
+			return $this->makePushDataAPICall($tableName, $subArray, $url);
 		}, array_chunk($data, 100));
 
 		return $responses;
 	}
 
-	private function makePushDataAPICall($table, array $data, $url = self::API_BASE) {
-		$requestUrl = "{$url}/client/{$this->clientId}/table/$table/data?apikey={$this->apiKey}";
+	/**
+	 * Client::makePushDataAPICall
+	 *
+	 * Internal function to wrap the Import API using Httpful.
+	 *
+	 * @param string $tableName
+	 * @param array $data
+	 * @param :optional string $url
+	 * @return object
+	 */
+	private function makePushDataAPICall($tableName, array $data, $url = self::API_BASE) {
+		$requestUrl = "{$url}/client/{$this->clientId}/table/{$tableName}/data?apikey={$this->apiKey}";
 
 		$response = \Httpful\Request::post($requestUrl)
 			->mime("application/json")
