@@ -1,5 +1,5 @@
 {
-    "name": "rjmetrics/rjmetrics",
+    "name": "rjmetrics/rjmetrics-client",
     "description": "PHP Client Library for RJMetrics",
     "license": "Apache v2",
     "version": "0.1.0",

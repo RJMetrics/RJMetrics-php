@@ -52,7 +52,7 @@ class Client {
 	}
 
 	/**
-	 * Client::test
+	 * Client::authenticate
 	 *
 	 * This function will run authentication against the live API. Will return true if authentication
 	 * succeeds, false if it fails.
