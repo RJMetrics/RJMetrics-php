@@ -10,5 +10,10 @@
     ],
     "require": {
         "nategood/httpful": "0.2.11"
+    },
+    "autoload": {
+        "psr-0": {
+            "RJMetrics": "src/"
+        }
     }
 }
