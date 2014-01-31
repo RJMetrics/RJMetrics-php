@@ -1,1 +1,4 @@
 /vendor/
+/examples/vendor/
+composer.lock
+/examples/composer.lock
