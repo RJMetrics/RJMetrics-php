@@ -1,4 +1,4 @@
 RJMetrics-php
 =============
 
-PHP Client Library for RJMetrics
+PHP Client Library for RJMetrics: http://developers.rjmetrics.com
