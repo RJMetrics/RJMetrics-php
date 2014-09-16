@@ -96,10 +96,12 @@ class Client {
 				"Invalid table name: '{$table}' -- must be a string.");
 
 		if(!is_array($data))
-			$data = [$data];
+			$data = array($data);
 
-		$responses = array_map(function($subArray) use ($tableName, $url) {
-			return $this->makePushDataAPICall($tableName, $subArray, $url);
+		$_this = $this;
+
+		$responses = array_map(function($subArray) use ($_this, $tableName, $url) {
+			return $_this->makePushDataAPICall($tableName, $subArray, $url);
 		}, array_chunk($data, 100));
 
 		return $responses;
