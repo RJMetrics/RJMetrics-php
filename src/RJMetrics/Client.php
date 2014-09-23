@@ -87,16 +87,19 @@ class Client {
 	 * @return array
 	 */
 	public function pushData($tableName, $data, $url = self::API_BASE) {
-		if(!is_object($data) && !is_array($data))
+		if(!is_object($data) && !is_array($data)) {
 			throw new \InvalidArgumentException(
 				"Invalid data -- must be a valid PHP array or object.");
+		}
 
-		if(!is_string($tableName))
+		if(!is_string($tableName)) {
 			throw new \InvalidArgumentException(
 				"Invalid table name: '{$table}' -- must be a string.");
+		}
 
-		if(!is_array($data))
+		if(!is_array($data)) {
 			$data = array($data);
+		}
 
 		$_this = $this;
 
@@ -117,7 +120,7 @@ class Client {
 	 * @param :optional string $url
 	 * @return object
 	 */
-	private function makePushDataAPICall($tableName, array $data, $url = self::API_BASE) {
+	public function makePushDataAPICall($tableName, array $data, $url = self::API_BASE) {
 		$requestUrl = "{$url}/client/{$this->clientId}/table/{$tableName}/data?apikey={$this->apiKey}";
 
 		$response = \Httpful\Request::post($requestUrl)

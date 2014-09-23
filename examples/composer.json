@@ -1,6 +1,6 @@
 {
 	"name": "rjmetrics/examples",
 	"require": {
-		"rjmetrics/rjmetrics-client": "0.1.1"
+		"rjmetrics/rjmetrics-client": "0.1.2"
 	}
 }
