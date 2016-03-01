@@ -60,10 +60,8 @@ class Client {
 	 * @return boolean
 	 */
 	public function authenticate() {
-		$testData = json_decode("[{\"keys\":[\"id\"],\"id\":1}]");
-
 		try {
-			$this->pushData("test", $testData, self::SANDBOX_BASE);
+			$this->makeAuthenticateAPICall(self::API_BASE);
 		} catch(InvalidRequestException $e) {
 			return false;
 		}
@@ -137,6 +135,29 @@ class Client {
 		return $response;
 	}
 
+	/**
+	 * Client::makeAuthenticateAPICall
+	 *
+	 * Internal function to authorize with API.
+	 *
+	 * @param :optional string $url
+	 * @return object
+	 */
+	public function makeAuthenticateAPICall($url = self::API_BASE) {
+		$requestUrl = "{$url}/client/{$this->clientId}/authenticate?apikey={$this->apiKey}";
+
+		$response = \Httpful\Request::get($requestUrl)
+			->mime("application/json")
+			->timeout($this->timeoutInSeconds)
+			->send();
+
+		if($response->hasErrors())
+			throw new InvalidRequestException(
+				"The Import API returned: {$response->code} {$response->body->message}. ".
+				"Reasons: ".implode($response->body->reasons, ","));
+
+		return $response;
+	}
 
 }
 
