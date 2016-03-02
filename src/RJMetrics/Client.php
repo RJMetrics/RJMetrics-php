@@ -94,7 +94,7 @@ class Client {
 
 		if(!is_string($tableName)) {
 			throw new \InvalidArgumentException(
-				"Invalid table name: '{$table}' -- must be a string.");
+				"Invalid table name: '{$tableName}' -- must be a string.");
 		}
 
 		if(!is_array($data)) {
